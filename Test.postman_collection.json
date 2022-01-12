@@ -1,0 +1,1605 @@
+{
+	"info": {
+		"_postman_id": "2513f8a0-2b38-4d23-972f-3a899c68f346",
+		"name": "Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let date = Date.now();\r",
+									"let email = 'POSTrecord.' + date + '@email.com';\r",
+									"pm.environment.set('user_email', email);\r",
+									"\r",
+									"let date2 = Date.now();\r",
+									"let email2 = 'POSTrecord2.' + date2 + '@email.com';\r",
+									"pm.environment.set('user_email', email2);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// example using pm.response.to.be*\r",
+									"pm.test(\"response must be valid and have a body\", function () {\r",
+									"     // assert that the status code is 200\r",
+									"     pm.response.to.be.success; // info, success, redirection, clientError,  serverError, are other variants\r",
+									"     // assert that the response has a valid JSON body\r",
+									"     pm.response.to.be.withBody;\r",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed\r",
+									"});\r",
+									"\r",
+									"// testing expected responses and setting new environment variable values \r",
+									"pm.test(\"CREATE new user\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+									"    const {data} = pm.response.json();\r",
+									"    pm.environment.set(\"user_id\", data.id);\r",
+									"    pm.environment.set(\"user_email\", data.email);\r",
+									"});\r",
+									"\r",
+									"// parsing inputs\r",
+									"pm.test(\"It should return message if Email is invalid\", function () {\r",
+									"    const response = pm.response.json();\r",
+									"    const data = response.data;\r",
+									"    pm.expect(pm.response.status).to.be.equal(\"Unprocessable Entity\");\r",
+									"    pm.expect(pm.response.code).to.be.equal(422);\r",
+									"    pm.expect(data[0].field).to.be.equal(\"email\");\r",
+									"    pm.expect(data[0].message).to.be.equal(\"is invalid\");\r",
+									"});\r",
+									"\r",
+									"var i = 0;\r",
+									"while (i < 3) {\r",
+									"    postman.setNextRequest(\"Get user\");\r",
+									"    console.log(\"test iteration \" + i);\r",
+									"    i++;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{user_name}}\",\r\n    \"email\": \"bahs@djqh.com\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"inactive\"\r\n}"
+						},
+						"url": {
+							"raw": "{{user_base_url}}",
+							"host": [
+								"{{user_base_url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// testing input parameters\r",
+									"pm.test(\"Imput parameters\", function () {\r",
+									"    //pm.environment.get(\"{{$user_email}}\");\r",
+									"    //pm.expect(\"{{$user_email}}\").to.include(\"@\");\r",
+									"    pm.collectionVariables.get(\"name\")\r",
+									"});\r",
+									"\r",
+									"// testing parsing inputs\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"khatri_bhooshan@durgan.name\");\r",
+									"});\r",
+									"pm.test(\"Body is correct\", function () {\r",
+									"    pm.response.to.have.body(\"inactive\");\r",
+									"});\r",
+									"\r",
+									"// testing expected responses\r",
+									"pm.test(\"Successful GET request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// testing max response time\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"// testing if scheme is valid\r",
+									"var schema = {\r",
+									"    \"meta\": null,\r",
+									"    \"data\": {\r",
+									"        \"id\": 10,\r",
+									"        \"name\": \"Bhooshan Khatri\",\r",
+									"        \"email\": \"khatri_bhooshan@durgan.name\",\r",
+									"        \"gender\": \"female\",\r",
+									"        \"status\": \"inactive\"\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"var data1 = [true, false];\r",
+									"var data2 = [true, 10];\r",
+									"\r",
+									"pm.test('Schema is valid', function () {\r",
+									"    pm.expect(tv4.validate(data1, schema)).to.be.true;\r",
+									"    pm.expect(tv4.validate(data2, schema)).to.be.true;\r",
+									"});\r",
+									"\r",
+									"\r",
+									"// testing error handling\r",
+									"pm.test(\"failing test\", () => {\r",
+									"\r",
+									"    try {\r",
+									"\r",
+									"        pm.expect(\"{{$user_base_url}}\").to.eq(\"https://gorest.co.in/public/v1/users\")\r",
+									"\r",
+									"    } catch (a) {\r",
+									"\r",
+									"        console.log(a)\r",
+									"\r",
+									"    }\r",
+									"\r",
+									"});\r",
+									"\r",
+									"// testing correct formatting of the response\r",
+									"pm.test(\"Content-Type is present\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\");\r",
+									"});\r",
+									"\r",
+									"// If not, you can force formatting through JSON\r",
+									"var jsonObject = xml2Json(responseBody);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"warning": "This is a duplicate header and will be overridden by the Authorization header generated by Postman.",
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{user_base_url}}/{{user_id}}",
+							"host": [
+								"{{user_base_url}}"
+							],
+							"path": [
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// testing expected responses\r",
+									"pm.test(\"Update the new user\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+									"\r",
+									"    const {data} = pm.response.json();\r",
+									"    pm.environment.set(\"user_id2\", data.id);\r",
+									"    pm.environment.set(\"user_email2\", data.email);\r",
+									"    postman.setNextRequest(null);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let date = Date.now();\r",
+									"let email = 'PUTrecord.' + date + '@emailUpdated.com';\r",
+									"pm.environment.set('user_email', email);\r",
+									"\r",
+									"let date2 = Date.now();\r",
+									"let email2 = 'PUTrecord2.' + date2 + '@emailUpdated.com';\r",
+									"pm.environment.set('user_email2', email2);\r",
+									"pm.environment.set('user_name2', 'Thomas Edison');\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{user_name2}}\",\r\n    \"email\": \"{{user_email2}}\",\r\n    \"gender\": \"{{user_gender}}\",\r\n    \"status\": \"{{user_status}}\"\r\n}"
+						},
+						"url": {
+							"raw": "{{user_base_url}}/{{user_id}}",
+							"host": [
+								"{{user_base_url}}"
+							],
+							"path": [
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// testing expected responses\r",
+									"pm.test(\"Successful DELETE request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{user_base_url}}/{{user_id}}",
+							"host": [
+								"{{user_base_url}}"
+							],
+							"path": [
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "Get post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/posts/5",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"posts",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/posts/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"posts",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/posts/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"posts",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/posts/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"posts",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Get comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/comments/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"comments",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/comments/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"comments",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/comments/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"comments",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/comments/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"comments",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "To dos",
+			"item": [
+				{
+					"name": "Get todos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/todos/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"todos",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update todos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/todos/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"todos",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete todos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/todos/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"todos",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create todos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/todos/123",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"todos",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User posts",
+			"item": [
+				{
+					"name": "Create user posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// testing expected responses\r",
+									"pm.test(\"Successful CREATE request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+									"});\r",
+									"\r",
+									"// testing creation by saving the id of the newly created user post\r",
+									"pm.test(\"Successful CREATE request\", function () {\r",
+									"    const {meta} = pm.response.json();\r",
+									"    pm.environment.set('user_post_id', data.id);\r",
+									"    pm.environment.set('user_post_user_id', data.post_user_id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let date = Date.now();\r",
+									"let email = 'POSTrecord.' + date + '@email.com';\r",
+									"let id = pm.environment.get('id');\r",
+									"pm.environment.set('user_email', email);\r",
+									"pm.collectionVariables.get(\"id\");\r",
+									"pm.environment.set('user_id', id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[{\r\n    \"id\": 4,\r\n    \"name\": \"Javas Malik\",\r\n    \"email\": \"javas_malik@berge-kuhn.net\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"inactive\"\r\n}]"
+						},
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/users/123/posts",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"users",
+								"123",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user posts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/users/123/posts",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"users",
+								"123",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user posts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/users/123/posts",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"users",
+								"123",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user posts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/users/123/posts",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"users",
+								"123",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Post comments",
+			"item": [
+				{
+					"name": "Get post comments",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/posts/123/comments",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"posts",
+								"123",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update post comments",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/posts/123/comments",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"posts",
+								"123",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete post comments",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/posts/123/comments",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"posts",
+								"123",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create post comments",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/posts/123/comments",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"posts",
+								"123",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User toDos",
+			"item": [
+				{
+					"name": "Create user toDos",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let due_on = new Date();\r",
+									"pm.environment.set('user_todos_do_on', due_on);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// testing expected responses\r",
+									"pm.test(\"CREATE new user to do\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+									"\r",
+									"    const {data} = pm.response.json();\r",
+									"    pm.environment.set(\"user_todos_id\", data.id);\r",
+									"});\r",
+									"\r",
+									"// parsing inputs\r",
+									"pm.test(\"It should return message if authentication has failed\", function () {\r",
+									"    const response = pm.response.json();\r",
+									"    const data = response.data;\r",
+									"    pm.expect(pm.response.status).to.be.equal(\"Unauthorized\");\r",
+									"    pm.expect(pm.response.code).to.be.equal(401);\r",
+									"    pm.expect(data.message).to.be.equal(\"Authentication failed\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"{{user_id}}\",\r\n    \"title\": \"{{user_todos_title}}.\",\r\n    \"due_on\": \"{{user_todos_do_on}}\",\r\n    \"status\": \"pending\"\r\n}"
+						},
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/users/{{user_id}}/todos",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"users",
+								"{{user_id}}",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user toDos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// testing input parameters\r",
+									"pm.test(\"Imput parameters\", function () {\r",
+									"    //pm.environment.get(\"{{$user_email}}\");\r",
+									"    //pm.expect(\"{{$user_email}}\").to.include(\"@\");\r",
+									"    pm.collectionVariables.get(\"name\")\r",
+									"});\r",
+									"\r",
+									"// testing parsing inputs\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"khatri_bhooshan@durgan.name\");\r",
+									"});\r",
+									"pm.test(\"Body is correct\", function () {\r",
+									"    pm.response.to.have.body(\"inactive\");\r",
+									"});\r",
+									"\r",
+									"// testing expected responses\r",
+									"pm.test(\"Successful GET request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// testing max response time\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"// testing if scheme is valid\r",
+									"var schema = {\r",
+									"    \"meta\": null,\r",
+									"    \"data\": {\r",
+									"        \"id\": 10,\r",
+									"        \"name\": \"Bhooshan Khatri\",\r",
+									"        \"email\": \"khatri_bhooshan@durgan.name\",\r",
+									"        \"gender\": \"female\",\r",
+									"        \"status\": \"inactive\"\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"var data1 = [true, false];\r",
+									"var data2 = [true, 10];\r",
+									"\r",
+									"pm.test('Schema is valid', function () {\r",
+									"    pm.expect(tv4.validate(data1, schema)).to.be.true;\r",
+									"    pm.expect(tv4.validate(data2, schema)).to.be.true;\r",
+									"});\r",
+									"\r",
+									"\r",
+									"// testing error handling\r",
+									"pm.test(\"failing test\", () => {\r",
+									"\r",
+									"    try {\r",
+									"\r",
+									"        pm.expect(\"{{$user_base_url}}\").to.eq(\"https://gorest.co.in/public/v1/users\")\r",
+									"\r",
+									"    } catch (a) {\r",
+									"\r",
+									"        console.log(a)\r",
+									"\r",
+									"    }\r",
+									"\r",
+									"});\r",
+									"\r",
+									"// testing correct formatting of the response\r",
+									"pm.test(\"Content-Type is present\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\");\r",
+									"});\r",
+									"\r",
+									"// If not, you can force formatting through JSON\r",
+									"var jsonObject = xml2Json(responseBody);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/users/{{user_id}}/todos",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"users",
+								"{{user_id}}",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user toDos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// testing expected responses\r",
+									"pm.test(\"Successful DELETE request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{Auth}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "https://gorest.co.in/public/v1/users/{{user_id}}/todos",
+							"protocol": "https",
+							"host": [
+								"gorest",
+								"co",
+								"in"
+							],
+							"path": [
+								"public",
+								"v1",
+								"users",
+								"{{user_id}}",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authentication}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "authentication",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "Content-Type",
+			"value": "application/json",
+			"type": "string"
+		}
+	]
+}
